@@ -29,3 +29,7 @@ gen
 # Go workspace file
 go.work
 
+external/agent/ja-netfilter
+ca.crt
+private.key
+public.key
