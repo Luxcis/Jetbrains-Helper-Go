@@ -1,11 +1,7 @@
 package helper
 
 import (
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
 	"github.com/mholt/archiver/v3"
-	"io"
 	"log"
 	"math/big"
 	"os"
@@ -51,14 +47,9 @@ func powerConfHasInit() bool {
 }
 
 func loadPowerConf() {
-	ch := make(chan string)
-	go func() {
-		ruleValue := generatePowerConfigRule()
-		configStr := generatePowerConfigStr(ruleValue)
-		overridePowerConfFileContent(configStr)
-		close(ch)
-	}()
-	<-ch // wait for the goroutine to finish
+	ruleValue := generatePowerConfigRule()
+	configStr := generatePowerConfigStr(ruleValue)
+	overridePowerConfFileContent(configStr)
 }
 
 func generatePowerConfigRule() string {
@@ -90,33 +81,15 @@ func unzipJaNetfilter() {
 }
 
 func zipJaNetfilter() {
+	// 删除已存在的压缩文件
+	if _, err := os.Stat(jaNetfilterZipFile.Name()); !os.IsNotExist(err) {
+		if err := os.Remove(jaNetfilterZipFile.Name()); err != nil {
+			log.Fatalf("Failed to remove existing zip file: %v", err)
+		}
+	}
+
+	// 压缩文件
 	if err := archiver.Archive([]string{JaNetfilterFilePath}, jaNetfilterZipFile.Name()); err != nil {
 		log.Fatalf("Failed to zip folder: %v", err)
 	}
-}
-
-func readX509Certificate(file *os.File) *x509.Certificate {
-	data, err := io.ReadAll(file)
-	if err != nil {
-		log.Fatalf("Error reading certificate file: %v", err)
-	}
-	block, _ := pem.Decode(data)
-	cert, err := x509.ParseCertificate(block.Bytes)
-	if err != nil {
-		log.Fatalf("Failed to parse certificate: %v", err)
-	}
-	return cert
-}
-
-func readRSAPublicKey(file *os.File) *rsa.PublicKey {
-	data, err := io.ReadAll(file)
-	if err != nil {
-		log.Fatalf("Error reading public key file: %v", err)
-	}
-	block, _ := pem.Decode(data)
-	pubKey, err := x509.ParsePKIXPublicKey(block.Bytes)
-	if err != nil {
-		log.Fatalf("Failed to parse public key: %v", err)
-	}
-	return pubKey.(*rsa.PublicKey)
 }

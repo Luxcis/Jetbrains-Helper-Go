@@ -30,6 +30,7 @@ gen
 go.work
 
 external/agent/ja-netfilter
+external/agent/ja-netfilter.zip
 ca.crt
 private.key
 public.key

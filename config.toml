@@ -1,4 +1,4 @@
-Mode = "release"
+Mode = "debug"
 
 [License]
 LicenseName = "Azurlane"

@@ -5,7 +5,6 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"encoding/pem"
 	"log"
 	"math/big"
 	"os"
@@ -52,9 +51,11 @@ func generateCertificate() {
 		log.Fatalf("Failed to marshal public key: %v", err)
 	}
 	writePemFile(publicKeyFileName, "PUBLIC KEY", publicKeyBytes)
+	publicKeyFile = OpenFile(publicKeyFileName)
 
 	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
 	writePemFile(privateKeyFileName, "PRIVATE KEY", privateKeyBytes)
+	privateKeyFile = OpenFile(privateKeyFileName)
 
 	serialNumber, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	if err != nil {
@@ -76,25 +77,5 @@ func generateCertificate() {
 		log.Fatalf("Failed to create certificate: %v", err)
 	}
 	writePemFile(certFileName, "CERTIFICATE", certBytes)
-}
-
-func writePemFile(fileName string, pemType string, bytes []byte) {
-	file, err := os.Create(fileName)
-	if err != nil {
-		log.Fatalf("Failed to create file: %v", err)
-	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			log.Fatalf("Failed to close data to PEM file: %v", err)
-		}
-	}(file)
-
-	pemBlock := &pem.Block{
-		Type:  pemType,
-		Bytes: bytes,
-	}
-	if err := pem.Encode(file, pemBlock); err != nil {
-		log.Fatalf("Failed to write data to PEM file: %v", err)
-	}
+	certFile = OpenFile(certFileName)
 }
