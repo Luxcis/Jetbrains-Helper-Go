@@ -1,0 +1,48 @@
+{{define "articles"}}
+{{range .products}}
+<article class="card" data-product="{{.Name}}" data-product-codes="{{.ProductCode}}">
+    <header>
+        <div class="flex items-center justify-between px-6 pt-1 pb-0 bg-card radius-1">
+            <div class="avatar-wrapper flex items-center justify-center overflow-hidden shrink-0">
+                <div class="icon {{.IconClass}}" role="img"></div>
+            </div>
+        </div>
+        <hr/>
+    </header>
+    <div class="pd-6 overflow-hidden bg-card container radius-1">
+        <h1 class="truncate truncate-1 color-primary mt-0 overflow-ellipsis" title="{{.Name}}">
+            {{.Name}}
+        </h1>
+        <p title="Copy to clipboard" class="truncate text-sm text-grey" onclick="copyLicense(this)"
+           data-content="Copy to clipboard">
+            *********************************************************************************************************************************************************
+        </p>
+    </div>
+    <div class="mask"></div>
+    <div class="mask mask-c-1"></div>
+</article>
+{{end}}
+{{range .Plugins}}
+<article class="card" data-product="{{.Name}}"
+         data-product-codes="{{.ProductCode}}">
+    <header>
+        <div class="flex items-center justify-between px-6 pt-1 pb-0 bg-card radius-1">
+            <div class="avatar-wrapper flex items-center justify-center overflow-hidden shrink-0">
+                <div class="icon" role="img"
+                     style="background-image: url({{.Icon}})"></div>
+            </div>
+        </div>
+        <hr/>
+    </header>
+    <div class="pd-6 overflow-hidden bg-card container radius-1">
+        <h1 class="truncate truncate-1 color-primary mt-0 overflow-ellipsis" title="{{.Name}}">{{.Name}}</h1>
+        <p title="Copy to clipboard" class="truncate text-sm text-grey" onclick="copyLicense(this)"
+           data-content="Copy to clipboard">
+            *********************************************************************************************************************************************************
+        </p>
+    </div>
+    <div class="mask"></div>
+    <div class="mask mask-c-1"></div>
+</article>
+{{end}}
+{{end}}

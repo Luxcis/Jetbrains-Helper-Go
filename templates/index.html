@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Jetbrains-Help</title>
+    <link rel="stylesheet" type="text/css" href="/assets/css/index.css">
+    <link rel="icon" href="https://www.jetbrains.com/favicon.ico">
+</head>
+<body>
+<header class="tip sticky flex items-center py-6">
+    <p>
+        🇨🇳 Download <a href="ja-netfilter" title="Download jetbra first">ja-netfilter.zip</a> , and configure
+        your JetBrains's <strong onclick="showVmoptins()">vmoptions!</strong> <br>
+        🇨🇳 Also you can <a onclick="showLicenseForm()">Refill license information</a> to customizer your license!<br>
+        <strong>🇨🇳 Please note that this page is only developed and used by
+            <span>{{.defaults.LicenseName}}</span>
+            <span>/</span>
+            <span>{{.defaults.AssigneeName}}</span>
+            personally!
+        </strong>
+    </p>
+    <div style="margin-left: 50px;">
+        <label><input type="text" class="search" id="search" placeholder="Search Product or Plugin"></label>
+    </div>
+</header>
+<main id="product-list" class="px-6 z-grid py-10" style="--space: 20rem; --gutter: 3.5rem">
+    {{block "articles" .}}
+    {{end}}
+</main>
+<div id="mask"
+     style="position:fixed;top:0;left:0;z-index:998;width:100%;height:100%;display:none;background-color:#000;opacity:0.5;overflow:hidden;"></div>
+<div id="form" style="position:fixed;top:20%;left:40%;width:40%;height:500px;z-index:999;display:none;">
+    <div class="form">
+        <div class="title">License Form</div>
+        <div class="subtitle">Customization is welcome</div>
+        <div class="input-container ic1">
+            <input id="licenseeName" class="input" type="text" placeholder=" "
+                   value="{{.LicenseName}}"/>
+            <div class="cut"></div>
+            <label for="licenseeName" class="placeholder">License Name</label>
+        </div>
+        <div class="input-container ic2">
+            <input id="assigneeName" class="input" type="text" placeholder=" "
+                   value="{{.AssigneeName}}"/>
+            <div class="cut"></div>
+            <label for="assigneeName" class="placeholder">Assigne Name</label>
+        </div>
+        <div class="input-container ic2">
+            <input id="expiryDate" class="input" type="text" placeholder=""
+                   value="{{.ExpiryDate}}"/>
+            <div class="cut cut-short"></div>
+            <label for="expiryDate" class="placeholder">Expiry Date</label>
+        </div>
+        <button class="submit" onclick="submitLicenseInfo(this)">Confirm</button>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="/assets/js/jquery.js"></script>
+<script type="text/javascript" src="/assets/js/index.js"></script>
+</html>
