@@ -1,5 +1,10 @@
 [
   {
+    "name": "All In One",
+    "productCode": "",
+    "iconClass": "icon-al"
+  },
+  {
     "name": "IntelliJ IDEA",
     "productCode": "II,PCWMP,PSI",
     "iconClass": "icon-ii"
