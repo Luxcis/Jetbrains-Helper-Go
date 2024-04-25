@@ -32,11 +32,10 @@ func InitCertificate() {
 		log.Println("Certificate context generate loading...")
 		generateCertificate()
 		log.Println("Certificate context generate success!")
-	} else {
-		privateKeyFile = OpenFile(privateKeyFileName)
-		publicKeyFile = OpenFile(publicKeyFileName)
-		certFile = OpenFile(certFileName)
 	}
+	privateKeyFile = OpenFile(privateKeyFileName)
+	publicKeyFile = OpenFile(publicKeyFileName)
+	certFile = OpenFile(certFileName)
 	log.Println("Certificate context init success!")
 }
 
@@ -51,11 +50,9 @@ func generateCertificate() {
 		log.Fatalf("Failed to marshal public key: %v", err)
 	}
 	writePemFile(publicKeyFileName, "PUBLIC KEY", publicKeyBytes)
-	publicKeyFile = OpenFile(publicKeyFileName)
 
 	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
 	writePemFile(privateKeyFileName, "PRIVATE KEY", privateKeyBytes)
-	privateKeyFile = OpenFile(privateKeyFileName)
 
 	serialNumber, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	if err != nil {
@@ -77,5 +74,4 @@ func generateCertificate() {
 		log.Fatalf("Failed to create certificate: %v", err)
 	}
 	writePemFile(certFileName, "CERTIFICATE", certBytes)
-	certFile = OpenFile(certFileName)
 }

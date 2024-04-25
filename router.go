@@ -4,7 +4,9 @@ import (
 	"Jetbrain-Helper/config"
 	"Jetbrain-Helper/helper"
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -78,7 +80,21 @@ func generateLicense(c *gin.Context) {
 }
 
 func download(c *gin.Context) {
+	file := helper.OpenFile(helper.JaNetfilterFilePath + ".zip")
+	fileStat, err := file.Stat()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get file info"})
+		return
+	}
 	c.Header("Content-Disposition", "attachment; filename=ja-netfilter.zip")
 	c.Header("Content-Type", "application/octet-stream")
-	c.File(helper.JaNetfilterFilePath + ".zip")
+	c.Header("Content-Length", strconv.FormatInt(fileStat.Size(), 10))
+	// 将文件内容复制到响应主体
+	_, err = io.Copy(c.Writer, file)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to download file"})
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

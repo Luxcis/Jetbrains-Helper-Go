@@ -56,6 +56,22 @@
         <button class="submit" onclick="submitLicenseInfo(this)">Confirm</button>
     </div>
 </div>
+<div id="vmoptions" style="position:fixed;top:20%;left:29%;width:40%;height:500px;z-index:999;display:none;">
+    <div class="form" style="width: 700px">
+        <div class="title">Vmoptions</div>
+        <div class="subtitle">Customization in idea.vmoptions</div>
+        <div class="input-container ic1" style="height: 150px">
+            <textarea id="config" class="input" cols="3" readonly style="resize:none">
+                -javaagent:/(Your Path)/ja-netfilter/ja-netfilter.jar
+                --add-opens=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED
+                --add-opens=java.base/jdk.internal.org.objectweb.asm.tree=ALL-UNNAMED
+            </textarea>
+            <div class="cut"></div>
+            <label for="config" class="placeholder">Config Text</label>
+        </div>
+        <button class="submit" onclick="$('#mask, #vmoptions').hide();">Close</button>
+    </div>
+</div>
 </body>
 <script type="text/javascript" src="/assets/js/jquery.js"></script>
 <script type="text/javascript" src="/assets/js/index.js"></script>

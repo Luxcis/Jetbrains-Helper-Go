@@ -13,9 +13,7 @@ const (
 	powerConfFileName   = JaNetfilterFilePath + "/config/power.conf"
 )
 
-var (
-	jaNetfilterZipFile *os.File
-)
+var jaNetfilterZipFile *os.File
 
 func InitAgent() {
 	log.Println("Agent context init loading...")
