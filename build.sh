@@ -1,1 +1,1 @@
-docker build -t luxcis/jetbrains-help .
+docker build -t luxcis/jetbrains-help-go .

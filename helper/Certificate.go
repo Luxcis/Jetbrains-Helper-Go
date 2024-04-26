@@ -18,24 +18,26 @@ const (
 	certFileName       = "external/certificate/ca.crt"
 )
 
-var (
-	rootKeyFile    *os.File
-	privateKeyFile *os.File
-	publicKeyFile  *os.File
-	certFile       *os.File
-)
+func rootKeyFile() *os.File {
+	return OpenFile(rootKeyFileName)
+}
+func privateKeyFile() *os.File {
+	return OpenFile(privateKeyFileName)
+}
+func publicKeyFile() *os.File {
+	return OpenFile(publicKeyFileName)
+}
+func certFile() *os.File {
+	return OpenFile(certFileName)
+}
 
 func InitCertificate() {
 	log.Println("Certificate context init loading...")
-	rootKeyFile = OpenFile(rootKeyFileName)
 	if !FileExists(privateKeyFileName) || !FileExists(publicKeyFileName) || !FileExists(certFileName) {
 		log.Println("Certificate context generate loading...")
 		generateCertificate()
 		log.Println("Certificate context generate success!")
 	}
-	privateKeyFile = OpenFile(privateKeyFileName)
-	publicKeyFile = OpenFile(publicKeyFileName)
-	certFile = OpenFile(certFileName)
 	log.Println("Certificate context init success!")
 }
 

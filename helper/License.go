@@ -30,10 +30,10 @@ func GenerateLicense(licensesName, assigneeName, expiryDate string, productCodeS
 		return "", err
 	}
 	licensePartBase64 := base64.StdEncoding.EncodeToString(licensePartJSON)
-	privateKey := readRSAPrivateKey(privateKeyFile)
+	privateKey := readRSAPrivateKey(privateKeyFile())
 	// publicKey = readRSAPublicKey(publicKeyFile)
 	signatureBase64 := signWithRSA(privateKey, licensePartJSON)
-	cert := readX509Certificate(certFile)
+	cert := readX509Certificate(certFile())
 	certEncoded, err := x509.MarshalPKIXPublicKey(cert.PublicKey)
 	if err != nil {
 		return "", err

@@ -80,7 +80,7 @@ func generateLicense(c *gin.Context) {
 }
 
 func download(c *gin.Context) {
-	file := helper.OpenFile(helper.JaNetfilterFilePath + ".zip")
+	file := helper.OpenFile(helper.JaNetfilterZipFile)
 	fileStat, err := file.Stat()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get file info"})

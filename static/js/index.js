@@ -33,16 +33,16 @@ $(document).ready(function () {
 
     // Function to show VM options
     window.showVmoptins = function () {
-$('#config').val("-javaagent:/(Your Path)/ja-netfilter/ja-netfilter.jar\n" +
-                             "--add-opens=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED\n" +
-                             "--add-opens=java.base/jdk.internal.org.objectweb.asm.tree=ALL-UNNAMED")
-            $('#mask, #vmoptions').show();
+        $('#config').val("-javaagent:/(Your Path)/ja-netfilter/ja-netfilter.jar\n" +
+            "--add-opens=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED\n" +
+            "--add-opens=java.base/jdk.internal.org.objectweb.asm.tree=ALL-UNNAMED")
+        $('#mask, #vmoptions').show();
     };
 
     // Function to copy license
     window.copyLicense = async function (e) {
         while (localStorage.getItem('licenseInfo') === null) {
-            $('#mask, #form').show();
+            showLicenseForm();
             await new Promise(r => setTimeout(r, 1000));
         }
         let licenseInfo = JSON.parse(localStorage.getItem('licenseInfo'));
