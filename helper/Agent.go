@@ -2,6 +2,7 @@ package helper
 
 import (
 	"archive/zip"
+	"crypto/rsa"
 	"fmt"
 	"github.com/mholt/archiver/v3"
 	"io"
@@ -56,15 +57,15 @@ func loadPowerConf() {
 }
 
 func generatePowerConfigRule() string {
-	crt := readX509Certificate(certFile()) // Assuming certificate package provides these
-	publicKey := readRSAPublicKey(publicKeyFile())
-	rootPublicKey := readRSAPublicKey(rootKeyFile())
+	crt := readX509Certificate(certFileName)
+	publicKey := readRSAPublicKey(publicKeyFileName)
+	rootPublicKey := readX509Certificate(rootKeyFileName)
 
 	x := new(big.Int).SetBytes(crt.Signature)
-	y := big.NewInt(int64(publicKey.E))      // Convert the public exponent to *big.Int
-	z := rootPublicKey.N                     // Modulus of the root public key
-	r := new(big.Int).Exp(x, y, publicKey.N) // Use y which is *big.Int now
-	return strings.Join([]string{"EQUAL", x.String(), y.String(), z.String(), "->", r.String()}, ",")
+	y := big.NewInt(int64(publicKey.E))
+	z := rootPublicKey.PublicKey.(*rsa.PublicKey).N
+	r := new(big.Int).Exp(x, y, publicKey.N)
+	return fmt.Sprintf("EQUAL,%s,%s,%s->%s", x, y, z, r)
 }
 
 func generatePowerConfigStr(ruleValue string) string {

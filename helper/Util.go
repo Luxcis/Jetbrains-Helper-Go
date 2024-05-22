@@ -2,14 +2,15 @@ package helper
 
 import (
 	"crypto"
+	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha256"
+	"crypto/sha1"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
-	"io"
+	"errors"
 	"log"
 	"os"
 )
@@ -39,51 +40,97 @@ func FileExists(path string) bool {
 	return !os.IsNotExist(err)
 }
 
-func readRSAPublicKey(file *os.File) *rsa.PublicKey {
-	data, err := io.ReadAll(file)
+func readRSAPublicKey(file string) *rsa.PublicKey {
+	key, err := readPemKey(file)
 	if err != nil {
-		log.Fatalf("Error reading public key file: %v", err)
+		log.Fatalf("无法解析公钥: %v", err)
 	}
-	block, _ := pem.Decode(data)
-	if block.Type == "CERTIFICATE" {
+	pk := key.(*rsa.PublicKey)
+	return pk
+}
+
+func readRSAPrivateKey(file string) *rsa.PrivateKey {
+	key, err := readPemKey(file)
+	if err != nil {
+		log.Fatalf("无法解析私钥: %v", err)
+	}
+	pk := key.(*rsa.PrivateKey)
+	return pk
+}
+
+func readX509Certificate(file string) *x509.Certificate {
+	key, err := readPemKey(file)
+	if err != nil {
+		log.Fatalf("无法解析私钥: %v", err)
+	}
+	ck := key.(*x509.Certificate)
+	return ck
+}
+
+func readPemKey(file string) (interface{}, error) {
+	keyData, err := os.ReadFile(file)
+	if err != nil {
+		return nil, err
+	}
+
+	block, _ := pem.Decode(keyData)
+	if block == nil {
+		return nil, errors.New("failed to decode PEM block containing key")
+	}
+
+	switch block.Type {
+	case "EC PRIVATE KEY":
+		key, err := x509.ParseECPrivateKey(block.Bytes)
+		if err != nil {
+			key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+			if err != nil {
+				return nil, err
+			}
+			switch key := key.(type) {
+			case *ecdsa.PrivateKey:
+				return key, nil
+			default:
+				return nil, errors.New("unsupported private key type")
+			}
+		}
+		return key, nil
+	case "RSA PRIVATE KEY":
+		key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, err
+		}
+		return key, nil
+	case "PRIVATE KEY":
+		key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, err
+		}
+		switch key := key.(type) {
+		case *rsa.PrivateKey, *ecdsa.PrivateKey:
+			return key, nil
+		default:
+			return nil, errors.New("unknown private key type")
+		}
+	case "EC PUBLIC KEY", "PUBLIC KEY":
+		key, err := x509.ParsePKIXPublicKey(block.Bytes)
+		if err != nil {
+			return nil, err
+		}
+		switch key := key.(type) {
+		case *ecdsa.PublicKey, *rsa.PublicKey:
+			return key, nil
+		default:
+			return nil, errors.New("unknown public key type")
+		}
+	case "CERTIFICATE":
 		cert, err := x509.ParseCertificate(block.Bytes)
 		if err != nil {
-			log.Fatalf("Failed to parse certificate public key: %v", err)
+			return nil, err
 		}
-		return cert.PublicKey.(*rsa.PublicKey)
-	} else {
-		pubKey, err := x509.ParsePKIXPublicKey(block.Bytes)
-		if err != nil {
-			log.Fatalf("Failed to parse public key: %v", err)
-		}
-		return pubKey.(*rsa.PublicKey)
+		return cert, nil
+	default:
+		return nil, errors.New("unrecognized key type: " + block.Type)
 	}
-}
-
-func readRSAPrivateKey(file *os.File) *rsa.PrivateKey {
-	data, err := io.ReadAll(file)
-	if err != nil {
-		log.Fatalf("Error reading private key file: %v", err)
-	}
-	block, _ := pem.Decode(data)
-	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	if err != nil {
-		log.Fatalf("Failed to parse private key: %v", err)
-	}
-	return privateKey
-}
-
-func readX509Certificate(file *os.File) *x509.Certificate {
-	data, err := io.ReadAll(file)
-	if err != nil {
-		log.Fatalf("Error reading certificate file: %v", err)
-	}
-	block, _ := pem.Decode(data)
-	cert, err := x509.ParseCertificate(block.Bytes)
-	if err != nil {
-		log.Fatalf("Failed to parse certificate: %v", err)
-	}
-	return cert
 }
 
 func writePemFile(fileName string, pemType string, bytes []byte) {
@@ -108,8 +155,14 @@ func writePemFile(fileName string, pemType string, bytes []byte) {
 }
 
 func signWithRSA(privateKey *rsa.PrivateKey, data []byte) string {
-	hashed := sha256.Sum256(data)
-	sign, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashed[:])
+	// 对数据进行SHA1哈希
+	hash := sha1.New()
+	_, err := hash.Write(data)
+	if err != nil {
+		log.Fatalf("哈希计算失败: %v", err)
+	}
+	hashed := hash.Sum(nil)
+	sign, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA1, hashed)
 	if err != nil {
 		log.Fatalf("Failed to sign: %v", err)
 	}

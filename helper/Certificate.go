@@ -7,7 +7,6 @@ import (
 	"crypto/x509/pkix"
 	"log"
 	"math/big"
-	"os"
 	"time"
 )
 
@@ -17,19 +16,6 @@ const (
 	publicKeyFileName  = "external/certificate/public.key"
 	certFileName       = "external/certificate/ca.crt"
 )
-
-func rootKeyFile() *os.File {
-	return OpenFile(rootKeyFileName)
-}
-func privateKeyFile() *os.File {
-	return OpenFile(privateKeyFileName)
-}
-func publicKeyFile() *os.File {
-	return OpenFile(publicKeyFileName)
-}
-func certFile() *os.File {
-	return OpenFile(certFileName)
-}
 
 func InitCertificate() {
 	log.Println("Certificate context init loading...")
@@ -53,7 +39,10 @@ func generateCertificate() {
 	}
 	writePemFile(publicKeyFileName, "PUBLIC KEY", publicKeyBytes)
 
-	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
+	privateKeyBytes, err := x509.MarshalPKCS8PrivateKey(privateKey)
+	if err != nil {
+		log.Fatalf("Failed to marshal private key: %v", err)
+	}
 	writePemFile(privateKeyFileName, "PRIVATE KEY", privateKeyBytes)
 
 	serialNumber, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))

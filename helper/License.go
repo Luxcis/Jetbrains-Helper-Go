@@ -1,14 +1,15 @@
 package helper
 
 import (
-	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"github.com/google/uuid"
+	"strings"
 )
 
 func GenerateLicense(licensesName, assigneeName, expiryDate string, productCodeSet []string) (string, error) {
-	licenseID := uuid.NewString()
+	licenseID := uuid.New().String()
+	licenseID = strings.Replace(licenseID, "-", "", -1)
 	var products []Product
 	for _, code := range productCodeSet {
 		products = append(products, Product{
@@ -30,15 +31,11 @@ func GenerateLicense(licensesName, assigneeName, expiryDate string, productCodeS
 		return "", err
 	}
 	licensePartBase64 := base64.StdEncoding.EncodeToString(licensePartJSON)
-	privateKey := readRSAPrivateKey(privateKeyFile())
-	// publicKey = readRSAPublicKey(publicKeyFile)
+	privateKey := readRSAPrivateKey(privateKeyFileName)
+	// publicKey := readRSAPublicKey(publicKeyFileName)
 	signatureBase64 := signWithRSA(privateKey, licensePartJSON)
-	cert := readX509Certificate(certFile())
-	certEncoded, err := x509.MarshalPKIXPublicKey(cert.PublicKey)
-	if err != nil {
-		return "", err
-	}
-	certBase64 := base64.StdEncoding.EncodeToString(certEncoded)
-
+	cert := readX509Certificate(certFileName)
+	certBase64 := base64.StdEncoding.EncodeToString(cert.Raw)
+	println(signatureBase64)
 	return licenseID + "-" + licensePartBase64 + "-" + signatureBase64 + "-" + certBase64, nil
 }
